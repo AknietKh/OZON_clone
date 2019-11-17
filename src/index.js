@@ -21,7 +21,6 @@ function renderCards(data) {
   const goodsWrapper = document.querySelector('.goods');
   data.goods.forEach((good) => {
     const card = document.createElement('div');
-    // card.className = 'col-12 col-md-6 col-lg-4 col-xl-3';
     card.className = 'card';
     card.setAttribute('data-category', good.category);
     card.innerHTML = `
@@ -103,7 +102,12 @@ function actionPage() {
   min.addEventListener('change', filter);
   max.addEventListener('change', filter);
 
-  searchBtn.addEventListener('click', () => {
+  searchBtn.addEventListener('click', searchHandler);
+  search.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') searchHandler();
+  })
+
+  function searchHandler() {
     const searchText = new RegExp(search.value.trim(), 'i');
     cards.forEach((card) => {
       const title = card.querySelector('.card-title');
@@ -115,7 +119,7 @@ function actionPage() {
 
       search.value = '';
     });
-  });
+  }
 
 };
 
