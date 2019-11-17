@@ -62,7 +62,7 @@ button:focus {
   position: absolute;
   top: 40px;
   left: 0;
-  z-index: 1;
+  z-index: 10;
   display: none;
   background: #fff;
   border: 2px solid #005bff;
@@ -348,7 +348,7 @@ button:focus {
   font-size: 14px;
   border-radius: 4px;
   margin-right: 8px;
-  z-index: 111;
+  z-index: 1;
 }
 .card-title {
   height: 50px;
@@ -360,7 +360,6 @@ button:focus {
   margin: 0;
   margin-bottom: 5px;
   position: relative;
-  z-index: 4;
 }
 .card-body {
   display: flex;
