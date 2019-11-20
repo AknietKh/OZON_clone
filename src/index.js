@@ -3,7 +3,7 @@
 
 function getData() {
   const goodsWrapper = document.querySelector('.goods');
-  return fetch('../db/db.json')
+  return fetch('http://localhost:3000/goods')
     .then((response) => {
       if (response.ok) {
         return response.json();
@@ -19,7 +19,7 @@ function getData() {
 
 function renderCards(data) {
   const goodsWrapper = document.querySelector('.goods');
-  data.goods.forEach((good) => {
+  data.forEach((good) => {
     const card = document.createElement('div');
     card.className = 'card';
     card.setAttribute('data-category', good.category);
