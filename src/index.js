@@ -1,4 +1,12 @@
+//Нажатие на лого возвращает на начальную страницу
+{
+  const logoBtn = document.querySelector('.logo');
 
+  logoBtn.addEventListener('click', (e) => {
+    event.preventDefault();
+    getData();
+  });
+}
 //получение данных с сервера
 
 function getData(request='') {
