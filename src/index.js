@@ -1,16 +1,16 @@
 
 //получение данных с сервера
 
-function getData() {
+function getData(request='') {
   const goodsWrapper = document.querySelector('.goods');
-  return fetch('http://localhost:3000/goods')
+  return fetch(`http://localhost:3000/goods${request}`)
     .then((response) => {
       if (response.ok) {
         return response.json();
       } else {
         throw new Error('Данные не были получены, ошибка: ' + response.status)
       }
-    })
+    }).then(data => renderCards(data))
     .catch(err => {
       console.warn(err);
       goodsWrapper.innerHTML = '<div style="color: red; font-size: 30px; margin: 0 auto;">Упс, что-то пошло не так!</div>'
@@ -19,6 +19,7 @@ function getData() {
 
 function renderCards(data) {
   const goodsWrapper = document.querySelector('.goods');
+  document.querySelectorAll('.card').forEach(i => i.remove());
   data.forEach((good) => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -44,7 +45,7 @@ function renderCards(data) {
 
 
 //Каталог
-function renderCatalog() {
+async function renderCatalog() {
   const cards = document.querySelectorAll('.goods .card');
   const catalogList = document.querySelector('.catalog-list');
   const catalogBtn = document.querySelector('.catalog-button');
@@ -52,8 +53,11 @@ function renderCatalog() {
   const filterText = document.querySelector('.filter-title h5');
   const categories = new Set();
 
-  cards.forEach((card) => {
-    categories.add(card.dataset.category);
+  const response = await fetch('http://localhost:3000/goods');
+  const result = await response.json();
+
+  result.forEach((item) => {
+    categories.add(item.category);
   });
 
   categories.forEach((category) => {
@@ -82,6 +86,8 @@ function renderCatalog() {
     
       filterText.textContent = event.target.textContent;
 
+      getData(`?category_like=${event.target.textContent}`)
+     
       filter();
     }
   });
@@ -144,11 +150,7 @@ function filter() {
       card.style.display = 'none';
     } else if (discountCheckbox.checked && !discount) {
       card.style.display = 'none';
-    } else if (activeLi) {
-        if (card.dataset.category !== activeLi.textContent) {
-          card.style.display = 'none';
-        }
-    }
+    } 
   });
 }
 
@@ -243,7 +245,6 @@ function addCart() {
 //end добавление товара в корзину
 
 getData().then((data) => {
-  renderCards(data);
   renderCatalog();
   toggleCheckbox();
   toggleCart();
