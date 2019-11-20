@@ -1,9 +1,11 @@
 //Нажатие на лого возвращает на начальную страницу
 {
   const logoBtn = document.querySelector('.logo');
+  const filterText = document.querySelector('.filter-title h5');
 
   logoBtn.addEventListener('click', (e) => {
     event.preventDefault();
+    filterText.textContent = "Фильтр";
     getData();
   });
 }
