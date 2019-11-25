@@ -11,7 +11,7 @@
 }
 //получение данных с сервера
 
-function getData(request='') {
+function getData(request='') { //?_page=1&_limit=8
   const goodsWrapper = document.querySelector('.goods');
   return fetch(`http://localhost:3000/goods${request}`)
     .then((response) => {
@@ -113,6 +113,7 @@ function actionPage() {
   const max = document.getElementById('max');
   const search = document.querySelector('.search-wrapper_input');
   const searchBtn = document.querySelector('.search-btn');
+  const filterText = document.querySelector('.filter-title h5');
 
   discountCheckbox.addEventListener('click', filter);
   min.addEventListener('change', filter);
@@ -124,7 +125,8 @@ function actionPage() {
   })
 
   function searchHandler() {
-    const searchText = new RegExp(search.value.trim(), 'i');
+    //раньше поиск проводился по заголовкам карточек, которые есть на странице/ДОМ-дереве на данный момент
+    /*const searchText = new RegExp(search.value.trim(), 'i');
     cards.forEach((card) => {
       const title = card.querySelector('.card-title');
       if (!searchText.test(title.textContent)) {
@@ -134,7 +136,11 @@ function actionPage() {
       }
 
       search.value = '';
-    });
+    });*/
+    //сейчас делается сетевой запрос на json-server
+    getData(`?title_like=${search.value.trim()}`);
+    search.value = '';
+    filterText.textContent = 'Фильтр';
   }
 
 };
