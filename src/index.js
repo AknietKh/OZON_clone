@@ -34,6 +34,14 @@ function pagination(data, search = '') {
       paginationContent.append(pagNum);
       pagNum.addEventListener('click', (event) => {
         pagRequest(event);
+        const pagNums = document.querySelectorAll('.pagination-number');
+        pagNums.forEach((elem) => {
+          if (elem === event.target) {
+            elem.classList.add('active');
+          } else {
+            elem.classList.remove('active');
+          }
+        })
       })
     }
 
@@ -46,7 +54,6 @@ function pagination(data, search = '') {
     const filterText = document.querySelector('.filter-title h5');
 
     if (search) {
-      console.log(search);
       fetch(`${URL}/${search}&_page=${event ? event.target.textContent : page}&_limit=8`)
         .then(response => {
           if(response.ok) return response.json();
