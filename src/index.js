@@ -6,12 +6,76 @@
   logoBtn.addEventListener('click', (e) => {
     event.preventDefault();
     filterText.textContent = "Фильтр";
-    getData();
+    getData().then(data => {
+        renderCards(data);
+        pagination(data);
+        actionPage();
+      });
   });
 }
+
+function pagination(data, search = '') {
+  const URL = 'http://localhost:3000/goods';
+  const pagination = document.querySelector('.pagination-wrapper')
+  const paginationContent = pagination.querySelector('.pagination-content');
+  const arrowLeft = pagination.querySelector('.arrow-left');
+  const arrowRight = pagination.querySelector('.arrow-right');
+  const paginationLength = Math.ceil(data.length / 8);
+
+  paginationContent.textContent = '';
+  pagRequest();
+  
+  if (paginationLength > 1) {
+    pagination.style.display = '';
+    for (let i = 1; i <= paginationLength; i++) {
+      const pagNum = document.createElement('span');
+      pagNum.className = 'pagination-number';
+      pagNum.innerHTML = i;
+      paginationContent.append(pagNum);
+      pagNum.addEventListener('click', (event) => {
+        pagRequest(event);
+      })
+    }
+
+    arrowLeft.addEventListener('click', pagRequest)
+  } else {
+    pagination.style.display = 'none';
+  }
+
+  function pagRequest(event='', page = 1) {
+    const filterText = document.querySelector('.filter-title h5');
+
+    if (search) {
+      console.log(search);
+      fetch(`${URL}/${search}&_page=${event ? event.target.textContent : page}&_limit=8`)
+        .then(response => {
+          if(response.ok) return response.json();
+        })
+        .then(data => renderCards(data))
+    }
+
+    else if (filterText.textContent !== 'Фильтр') {
+      fetch(`${URL}/?category_like=${filterText.textContent}&_page=${event ? event.target.textContent : page}&_limit=8`)
+        .then(response => {
+          if(response.ok) return response.json();
+        })
+        .then(data => renderCards(data))
+    } 
+    
+    else {
+      fetch(`${URL}/?_page=${event ? event.target.textContent : page}&_limit=8`)
+        .then(response => {
+          if(response.ok) return response.json();
+        })
+        .then(data => renderCards(data))
+    }
+  }
+  
+}
+
 //получение данных с сервера
 
-function getData(request='') { //?_page=1&_limit=8
+function getData(request='') { 
   const goodsWrapper = document.querySelector('.goods');
   return fetch(`http://localhost:3000/goods${request}`)
     .then((response) => {
@@ -20,7 +84,7 @@ function getData(request='') { //?_page=1&_limit=8
       } else {
         throw new Error('Данные не были получены, ошибка: ' + response.status)
       }
-    }).then(data => renderCards(data))
+    })
     .catch(err => {
       console.warn(err);
       goodsWrapper.innerHTML = '<div style="color: red; font-size: 30px; margin: 0 auto;">Упс, что-то пошло не так!</div>'
@@ -48,7 +112,8 @@ function renderCards(data) {
 								</div>
     `;
     goodsWrapper.append(card);
-  })
+  });
+  
 }
 
 //end получение данных с сервера
@@ -96,7 +161,12 @@ async function renderCatalog() {
     
       filterText.textContent = event.target.textContent;
 
-      getData(`?category_like=${event.target.textContent}`)
+      getData(`/?category_like=${event.target.textContent}`)
+      .then(data => {
+          renderCards(data);
+          pagination(data);
+          actionPage();
+        })
      
       filter();
     }
@@ -138,7 +208,13 @@ function actionPage() {
       search.value = '';
     });*/
     //сейчас делается сетевой запрос на json-server
-    getData(`?title_like=${search.value.trim()}`);
+    const searchText = search.value.trim();
+    getData(`/?title_like=${searchText}`)
+    .then(data => {
+      renderCards(data);
+      pagination(data, `?title_like=${searchText}`);
+      actionPage();
+    });
     search.value = '';
     filterText.textContent = 'Фильтр';
   }
@@ -261,6 +337,8 @@ function addCart() {
 //end добавление товара в корзину
 
 getData().then((data) => {
+  renderCards(data);
+  pagination(data);
   renderCatalog();
   toggleCheckbox();
   toggleCart();
