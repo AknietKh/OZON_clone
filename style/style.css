@@ -257,7 +257,6 @@ button:focus {
   position: relative;
   padding-left: 21px;
   color: #4d5f71;
-  font-family: GTEestiProText, Arial, sans-serif;
   font-size: 14px;
   line-height: 19px;
   cursor: pointer;
@@ -305,14 +304,83 @@ button:focus {
 
 .goods {
   display: flex;
+  justify-content: flex-end;
   flex-wrap: wrap;
-  max-width: 85%;
+}
+.goods-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 86%;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #005bff;
+}
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  height: 40px;
+  margin-top: 5px;
+}
+.pagination-content {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+.pagination-content .pagination-number {
+  cursor: pointer;
+  text-align: center;
+  width: 15px;
+}
+.pagination-content .pagination-number:hover {
+  border: 1px solid #005bff;
+  border-radius: 50%;
+}
+.pagination-content .active {
+  border: 1px solid #005bff;
+  border-radius: 50%;
+}
+.pagination .arrow {
+  align-self: stretch;
+  width: 40px;
+  background-color: #005bff;
+  position: relative;
+  cursor: pointer;
+}
+.pagination .arrow-content {
+  position: relative;
+  height: 15px;
+  border-right: 2px solid white;
+  position: absolute;
+}
+.pagination .arrow .content-left:first-child {
+  top: 20%;
+  left: 45%;
+  transform: rotate(45deg);
+}
+.pagination .arrow .content-left:last-child {
+  top: 45%;
+  left: 45%;
+  transform: rotate(135deg);
+}
+.pagination .arrow .content-right:first-child {
+  top: 20%;
+  right: 45%;
+  transform: rotate(-45deg);
+}
+.pagination .arrow .content-right:last-child {
+  top: 45%;
+  right: 45%;
+  transform: rotate(-135deg);
 }
 
 .card {
   border: 1px solid #ededed;
-  flex: 0 0 24%;
-  max-width: 24%;
+  flex: 0 0 24.5%;
+  max-width: 25%;
   position: relative;
 }
 .card-img-wrapper {
