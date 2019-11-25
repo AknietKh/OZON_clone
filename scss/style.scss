@@ -344,7 +344,6 @@
 
  .goods {
    display: flex;
-   justify-content: flex-end;
    flex-wrap: wrap;
 
    &-wrapper {
@@ -358,7 +357,8 @@
    display: flex;
    justify-content: space-between;
    align-items: center;
-   border: 1px solid $btn-color;
+   box-sizing: border-box;
+   //  border: 1px solid $btn-color;
 
    &-wrapper {
      display: flex;
@@ -376,7 +376,8 @@
        cursor: pointer;
        text-align: center;
        width: 15px;
-
+       margin: 0 2px;
+       border: 1px solid transparent;
        &:hover {
          border: 1px solid $btn-color;
          border-radius: 50%;
@@ -391,7 +392,7 @@
 
    .arrow {
      align-self: stretch;
-     width: 40px;
+     min-width: 25px;
      background-color: $btn-color;
      position: relative;
      cursor: pointer;
