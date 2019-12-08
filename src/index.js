@@ -1,30 +1,30 @@
 //Нажатие на лого возвращает на начальную страницу
 {
-  const logoBtn = document.querySelector('.logo');
-  const filterText = document.querySelector('.filter-title h5');
+  const logoBtn = document.querySelector('.logo'),
+    filterText = document.querySelector('.filter-title h5');
 
   logoBtn.addEventListener('click', (e) => {
     event.preventDefault();
     filterText.textContent = "Фильтр";
     getData().then(data => {
-        renderCards(data);
-        pagination(data);
-        actionPage();
-      });
+      renderCards(data);
+      pagination(data);
+      actionPage();
+    });
   });
 }
 
 function pagination(data, search = '') {
-  const URL = 'http://localhost:3000/goods';
-  const pagination = document.querySelector('.pagination-wrapper')
-  const paginationContent = pagination.querySelector('.pagination-content');
-  const arrowLeft = pagination.querySelector('.arrow-left');
-  const arrowRight = pagination.querySelector('.arrow-right');
-  const paginationLength = Math.ceil(data.length / 8);
+  const URL = 'http://localhost:3000/goods',
+    pagination = document.querySelector('.pagination-wrapper'),
+    paginationContent = pagination.querySelector('.pagination-content'),
+    paginationLength = Math.ceil(data.length / 8);
+  /*const arrowLeft = pagination.querySelector('.arrow-left'),
+    arrowRight = pagination.querySelector('.arrow-right'),
+    arrows = document.querySelectorAll('.arrow');*/
 
   paginationContent.textContent = '';
-  pagRequest();
-  
+
   if (paginationLength > 1) {
     pagination.style.display = '';
     for (let i = 1; i <= paginationLength; i++) {
@@ -32,57 +32,129 @@ function pagination(data, search = '') {
       pagNum.className = 'pagination-number';
       pagNum.innerHTML = i;
       paginationContent.append(pagNum);
-      pagNum.addEventListener('click', (event) => {
-        pagRequest(event);
-        const pagNums = document.querySelectorAll('.pagination-number');
-        pagNums.forEach((elem) => {
-          if (elem === event.target) {
-            elem.classList.add('active');
-          } else {
-            elem.classList.remove('active');
-          }
-        })
-      })
+      pagNum.addEventListener('click', (event) => pagRequest(event));
     }
 
-    arrowLeft.addEventListener('click', pagRequest)
+    /*Не разобрался с багом при переключении страницы по стрелочкам,
+    поэтому пока закоментил
+    arrows.forEach((arrow) => {
+      arrow.addEventListener('click', (e) =>{
+        console.dir(e.target);
+        const arrow = e.target.closest('.arrow')
+        arrowHandler(arrow, currentData);
+      });
+    });
+
+    arrowLeft.addEventListener('click', (e) => {
+      let curentEvent = e.target;
+      e.stopPropagation();
+      arrowLeftHandler(arrowLeft);
+    });
+    arrowRight.addEventListener('click', (e) => {
+      let curEvent = e.target;
+      e.stopPropagation();
+      arrowRightHandler(arrowRight);
+    });*/
+
   } else {
     pagination.style.display = 'none';
   }
 
-  function pagRequest(event='', page = 1) {
-    const filterText = document.querySelector('.filter-title h5');
+  pagRequest(); //вызывается для того что бы отобразить первую страницу с заданными параметрами пагинации
+
+  /*function arrowHandler(arrow) {
+    let activePagNum = +paginationContent.querySelector('.active').textContent;
+
+    if (arrow.classList.contains('arrow-right')) {
+      if (activePagNum !== paginationLength) {
+        activePagNum++;
+        pagRequest('', activePagNum, 'right');
+      } else {
+        pagRequest('', 1, 'right')
+      }
+    } else if (arrow.classList.contains('arrow-left')) {
+      if (+activePagNum !== 1) {
+        activePagNum--;
+        pagRequest('', activePagNum, 'left');
+      } else {
+        pagRequest('', paginationLength, 'left')
+      }
+    }
+
+  }
+
+  function arrowRightHandler() {
+    let activePagNum = +paginationContent.querySelector('.active').textContent;
+
+    if (activePagNum !== paginationLength) {
+      activePagNum++;
+      pagRequest('', activePagNum, 'right');
+    } else {
+      pagRequest('', 1, 'right')
+    }
+  }
+
+  function arrowLeftHandler() {
+    let activePagNum = +paginationContent.querySelector('.active').textContent;
+
+    if (+activePagNum !== 1) {
+      activePagNum--;
+      pagRequest('', activePagNum, 'left');
+    } else {
+      pagRequest('', paginationLength, 'left')
+    }
+  }*/
+
+  function pagRequest(event = '', page = 1, arrow = '') {
+    const filterText = document.querySelector('.filter-title h5'),
+      pagNums = document.querySelectorAll('.pagination-number');
+
+    if (!event && !pagination.style.display && !arrow) {
+      const pagNum = document.querySelector('.pagination-number');
+      pagNum.classList.add('active');
+    }
+
+    pagNums.forEach((elem) => {
+      if (event && elem === event.target) {
+        elem.classList.add('active');
+      } else if (event && elem !== event.target) {
+        elem.classList.remove('active');
+      }
+
+      /*if (arrow) {
+        if (+elem.textContent === page) {
+          elem.classList.add('active');
+        } else {
+          elem.classList.remove('active');
+        }
+      }*/
+    })
 
     if (search) {
       fetch(`${URL}/${search}&_page=${event ? event.target.textContent : page}&_limit=8`)
         .then(response => {
-          if(response.ok) return response.json();
+          if (response.ok) return response.json();
         })
-        .then(data => renderCards(data))
-    }
-
-    else if (filterText.textContent !== 'Фильтр') {
+        .then(data => renderCards(data));
+    } else if (filterText.textContent !== 'Фильтр') {
       fetch(`${URL}/?category_like=${filterText.textContent}&_page=${event ? event.target.textContent : page}&_limit=8`)
         .then(response => {
-          if(response.ok) return response.json();
+          if (response.ok) return response.json();
         })
-        .then(data => renderCards(data))
-    } 
-    
-    else {
+        .then(data => renderCards(data));
+    } else {
       fetch(`${URL}/?_page=${event ? event.target.textContent : page}&_limit=8`)
         .then(response => {
-          if(response.ok) return response.json();
+          if (response.ok) return response.json();
         })
-        .then(data => renderCards(data))
+        .then(data => renderCards(data));
     }
   }
-  
 }
 
 //получение данных с сервера
 
-function getData(request='') { 
+function getData(request = '') {
   const goodsWrapper = document.querySelector('.goods');
   return fetch(`http://localhost:3000/goods${request}`)
     .then((response) => {
@@ -120,7 +192,7 @@ function renderCards(data) {
     `;
     goodsWrapper.append(card);
   });
-  
+
 }
 
 //end получение данных с сервера
@@ -165,16 +237,16 @@ async function renderCatalog() {
           elem.classList.remove('active');
         }
       });
-    
+
       filterText.textContent = event.target.textContent;
 
       getData(`/?category_like=${event.target.textContent}`)
-      .then(data => {
+        .then(data => {
           renderCards(data);
           pagination(data);
           actionPage();
         })
-     
+
       filter();
     }
   });
@@ -217,11 +289,11 @@ function actionPage() {
     //сейчас делается сетевой запрос на json-server
     const searchText = search.value.trim();
     getData(`/?title_like=${searchText}`)
-    .then(data => {
-      renderCards(data);
-      pagination(data, `?title_like=${searchText}`);
-      actionPage();
-    });
+      .then(data => {
+        renderCards(data);
+        pagination(data, `?title_like=${searchText}`);
+        actionPage();
+      });
     search.value = '';
     filterText.textContent = 'Фильтр';
   }
@@ -249,7 +321,7 @@ function filter() {
       card.style.display = 'none';
     } else if (discountCheckbox.checked && !discount) {
       card.style.display = 'none';
-    } 
+    }
   });
 }
 
