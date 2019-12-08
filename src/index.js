@@ -1,20 +1,26 @@
 //Нажатие на лого возвращает на начальную страницу
 {
   const logoBtn = document.querySelector('.logo'),
-    filterText = document.querySelector('.filter-title h5');
+        filterText = document.querySelector('.filter-title h5'),
+        discountCheckbox = document.getElementById('discount-checkbox');
+  
+  
 
   logoBtn.addEventListener('click', (e) => {
     event.preventDefault();
+    discountCheckbox.checked = false;
+    discountCheckbox.nextElementSibling.classList.remove('checked');
     filterText.textContent = "Фильтр";
     getData().then(data => {
       renderCards(data);
       pagination(data);
       actionPage(data);
+      toggleCheckbox();
     });
   });
 }
 
-function pagination(data, whence='?') {
+function pagination(data, whence='') {
   const URL = 'http://localhost:3000/goods',
     pagination = document.querySelector('.pagination-wrapper'),
     paginationContent = pagination.querySelector('.pagination-content'),
@@ -40,11 +46,10 @@ function pagination(data, whence='?') {
         arrowHandler(arrow, data);
       });
     });
+    pagRequest(); //вызывается для того что бы отобразить первую страницу с заданными параметрами пагинации
   } else {
     pagination.style.display = 'none';
   }
-
-  pagRequest(); //вызывается для того что бы отобразить первую страницу с заданными параметрами пагинации
 
   function arrowHandler(arrow) {
     let activePagNum = +paginationContent.querySelector('.active').textContent;
@@ -69,7 +74,7 @@ function pagination(data, whence='?') {
   async function pagRequest(event = '', arrow = '') {
     const pagNums = document.querySelectorAll('.pagination-number');
 
-    let response = await fetch(`${URL}/${whence}&_page=${event ? event.target.textContent : arrow || '1'}&_limit=8`);
+    let response = await fetch(`${URL}/?${whence}&_page=${event ? event.target.textContent : arrow || '1'}&_limit=8`);
     let pagCards = await response.json();
     renderCards(pagCards);
 
@@ -192,11 +197,9 @@ async function renderCatalog() {
       getData(`/?category_like=${event.target.textContent}`)
         .then(data => {
           renderCards(data);
-          pagination(data, `/?category_like=${event.target.textContent}`);
-          actionPage(data, `/?category_like=${event.target.textContent}`);
-        })
-
-      // filter();
+          pagination(data, `category_like=${event.target.textContent}`);
+          actionPage(data, `category_like=${event.target.textContent}`);
+        });
     }
   });
 }
@@ -205,39 +208,65 @@ async function renderCatalog() {
 //фильтр акций
 // функция actionPage вешает события на фильтр и чекбоксы. Так же реализован поиск по товарам
 function actionPage(data, whence = '') {
-  const URL = 'http://localhost:3000/goods',
-        discountCheckbox = document.getElementById('discount-checkbox'),
+  const discountCheckbox = document.getElementById('discount-checkbox'),
         min = document.getElementById('min'),
         max = document.getElementById('max');
-  
-  discountCheckbox.addEventListener('click', filter);
-  min.addEventListener('change', filter);
-  max.addEventListener('change', filter);
 
-  async function filter() {
-
-    let response = await fetch(`${URL}?sale=true`);
-    let saleCards = await response.json();
-    renderCards(saleCards);
-    pagination(saleCards, '?sale=true');
-  
-    // cards.forEach((card) => {
-    //   const cardPrice = card.querySelector('.card-price');
-    //   const price = parseFloat(cardPrice.textContent);
-    //   const discount = card.querySelector('.card-sale');
-  
-    //   card.style.display = '';
-  
-    //   if ((min.value && price < min.value) || (max.value && price > max.value)) {
-    //     card.style.display = 'none';
-    //   } else if (discountCheckbox.checked && !discount) {
-    //     card.style.display = 'none';
-    //   }
-    // });
+  if(whence) {
+    discountCheckbox.removeEventListener('change', () => {
+      filter(data, whence);
+    });
+    min.removeEventListener('change', () => {
+      filter(data, whence);
+    });
+    max.removeEventListener('change', () => {
+      filter(data, whence);
+    });
   }
+  
+  discountCheckbox.addEventListener('change', () => {
+    filter(data, whence);
+  });
+  min.addEventListener('change', () => {
+    filter(data, whence);
+  });
+  max.addEventListener('change', () => {
+    filter(data, whence);
+  });
 
 };
 
+function filter(data, whence) {
+  const discountCheckbox = document.getElementById('discount-checkbox');
+
+  if (discountCheckbox.checked){
+    let saleCards = [];
+    data.forEach( item => {
+      if (item.sale) saleCards.push(item);
+    });
+    renderCards(saleCards);
+    pagination(saleCards, 'sale=true');
+  } else {
+    renderCards(data);
+    pagination(data);
+    toggleCheckbox();
+  }
+  
+
+  // cards.forEach((card) => {
+  //   const cardPrice = card.querySelector('.card-price');
+  //   const price = parseFloat(cardPrice.textContent);
+  //   const discount = card.querySelector('.card-sale');
+
+  //   card.style.display = '';
+
+  //   if ((min.value && price < min.value) || (max.value && price > max.value)) {
+  //     card.style.display = 'none';
+  //   } else if (discountCheckbox.checked && !discount) {
+  //     card.style.display = 'none';
+  //   }
+  // });
+}
 //end фильтр акций
 
 function search() {
@@ -255,8 +284,8 @@ function search() {
     getData(`/?title_like=${searchText}`)
       .then(data => {
         renderCards(data);
-        pagination(data, `?title_like=${searchText}`);
-        actionPage(data,`?title_like=${searchText}`);
+        pagination(data, `title_like=${searchText}`);
+        actionPage(data,`title_like=${searchText}`);
       });
     search.value = '';
     filterText.textContent = 'Фильтр';
