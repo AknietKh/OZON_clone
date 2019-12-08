@@ -191,6 +191,11 @@ function renderCards(data) {
 								</div>
     `;
     goodsWrapper.append(card);
+    
+    const cardBtn = card.querySelector('.btn');
+    cardBtn.addEventListener('click', () => {
+      addCart(good);
+    });
   });
 
 }
