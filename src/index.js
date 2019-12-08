@@ -507,6 +507,6 @@ getData().then((data) => {
   renderCatalog();
   toggleCheckbox();
   toggleCart();
-  addCart();
   actionPage();
+  cartCounter()
 });
