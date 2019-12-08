@@ -478,7 +478,7 @@ button:focus {
   border-radius: 3px;
   padding: 20px;
 }
-.cart-wrapper #cart-empty {
+.cart-wrapper .cart-empty {
   font-size: 24px;
   color: #4d5f71;
 }

@@ -363,6 +363,7 @@ function toggleCart() {
   btnCartClose.addEventListener('click', () => {
     modalCart.style.display = 'none';
     document.body.style.overflow = '';
+    cartCounter();
   })
 }
 
@@ -378,7 +379,8 @@ async function addCart(good) {
       'Content-Type': 'application/json;charset=utf-8'
     },
     body: JSON.stringify(goodClone)
-  })
+  });
+  cartCounter();
 }
 
 async function cartCounter() {
@@ -407,10 +409,10 @@ function renderCartCards(cartCards) {
   });
 
   cartTotal.textContent = sum;
-
+  cartWrapper.innerHTML = '';
 
   if (cartCards.length) {
-    cartEmpty ? cartEmpty.remove() : '';
+    // cartEmpty ? cartEmpty.display = 'none' : '';
     cartCards.forEach((item) => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -436,6 +438,9 @@ function renderCartCards(cartCards) {
       });
     });
   } else {
+    const cartEmpty = document.createElement('div');
+    cartEmpty.className = 'cart-empty';
+    cartEmpty.innerHTML = 'Ваша корзина пока пуста';
     cartWrapper.append(cartEmpty);
   };
 }
@@ -508,5 +513,5 @@ getData().then((data) => {
   toggleCheckbox();
   toggleCart();
   actionPage();
-  cartCounter()
+  cartCounter();
 });
