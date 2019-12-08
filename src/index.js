@@ -9,7 +9,7 @@
     getData().then(data => {
       renderCards(data);
       pagination(data);
-      actionPage();
+      actionPage(data);
     });
   });
 }
@@ -249,7 +249,7 @@ async function renderCatalog() {
         .then(data => {
           renderCards(data);
           pagination(data);
-          actionPage();
+          actionPage(data, `/?category_like=${event.target.textContent}`);
         })
 
       filter();
@@ -260,49 +260,44 @@ async function renderCatalog() {
 
 //фильтр акций
 // функция actionPage вешает события на фильтр и чекбоксы. Так же реализован поиск по товарам
-function actionPage() {
-  const cards = document.querySelectorAll('.goods .card');
+function actionPage(data, whence = '') {
   const discountCheckbox = document.getElementById('discount-checkbox');
   const min = document.getElementById('min');
   const max = document.getElementById('max');
-  const search = document.querySelector('.search-wrapper_input');
-  const searchBtn = document.querySelector('.search-btn');
-  const filterText = document.querySelector('.filter-title h5');
+  
 
   discountCheckbox.addEventListener('click', filter);
   min.addEventListener('change', filter);
   max.addEventListener('change', filter);
 
+ 
+
+  
+
+};
+
+function search() {
+  const search = document.querySelector('.search-wrapper_input'),
+        searchBtn = document.querySelector('.search-btn'),
+        filterText = document.querySelector('.filter-title h5');
+  
   searchBtn.addEventListener('click', searchHandler);
   search.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchHandler();
-  })
+  });
 
   function searchHandler() {
-    //раньше поиск проводился по заголовкам карточек, которые есть на странице/ДОМ-дереве на данный момент
-    /*const searchText = new RegExp(search.value.trim(), 'i');
-    cards.forEach((card) => {
-      const title = card.querySelector('.card-title');
-      if (!searchText.test(title.textContent)) {
-        card.style.display = 'none';
-      } else {
-        card.style.display = '';
-      }
-
-      search.value = '';
-    });*/
-    //сейчас делается сетевой запрос на json-server
     const searchText = search.value.trim();
     getData(`/?title_like=${searchText}`)
       .then(data => {
         renderCards(data);
         pagination(data, `?title_like=${searchText}`);
+        actionPage(data,`?title_like=${searchText}`);
       });
     search.value = '';
     filterText.textContent = 'Фильтр';
   }
-
-};
+}
 
 //end фильтр акций
 
@@ -312,7 +307,6 @@ function filter() {
   const discountCheckbox = document.getElementById('discount-checkbox');
   const min = document.getElementById('min');
   const max = document.getElementById('max');
-  // const activeLi = document.querySelector('.catalog li.active');
 
   cards.forEach((card) => {
     const cardPrice = card.querySelector('.card-price');
@@ -455,54 +449,6 @@ async function deleteCart(card) {
   })
   showCartCards();
 }
-/*Старая реализация
-function addCart() {
-  const cards = document.querySelectorAll('.goods .card');
-  const cartWrapper = document.querySelector('.cart-wrapper');
-  const cartEmpty = document.getElementById('cart-empty');
-  const countGoods = document.querySelector('.counter');
-
-  cards.forEach((card) => {
-    const btn = card.querySelector('button');
-
-    btn.addEventListener('click', () => {
-      const cardClone = card.cloneNode(true);
-      cartWrapper.append(cardClone);
-      showData();
-
-      const removeBtn = cardClone.querySelector('button');
-      removeBtn.textContent = 'Удалить из корзины';
-      removeBtn.addEventListener('click', () => {
-        cardClone.remove();
-        showData();
-      })
-    });
-  });
-
-  //показывает общую сумму товаров в корзине и количество товаров в корзине
-  function showData() {
-    const cardsCart = cartWrapper.querySelectorAll('.card');
-    const cardsPrice = cartWrapper.querySelectorAll('.card-price');
-    const cartTotal = document.querySelector('.cart-total span');
-    let sum = 0;
-
-    countGoods.textContent = cardsCart.length;
-
-    cardsPrice.forEach((cardPrice) => {
-      let price = parseFloat(cardPrice.textContent);
-      sum += price;
-    });
-
-    cartTotal.textContent = sum;
-
-    if (cardsCart.length) {
-      cartEmpty.remove();
-    } else {
-      cartWrapper.append(cartEmpty);
-    };
-  };
-
-};*/
 
 //end добавление товара в корзину
 
@@ -510,8 +456,9 @@ getData().then((data) => {
   renderCards(data);
   pagination(data);
   renderCatalog();
+  cartCounter();
   toggleCheckbox();
   toggleCart();
-  actionPage();
-  cartCounter();
+  search();
+  actionPage(data);
 });
