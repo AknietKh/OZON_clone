@@ -191,7 +191,7 @@ function renderCards(data) {
 								</div>
     `;
     goodsWrapper.append(card);
-    
+
     const cardBtn = card.querySelector('.btn');
     cardBtn.addEventListener('click', () => {
       addCart(good);
@@ -297,7 +297,6 @@ function actionPage() {
       .then(data => {
         renderCards(data);
         pagination(data, `?title_like=${searchText}`);
-        actionPage();
       });
     search.value = '';
     filterText.textContent = 'Фильтр';
@@ -313,7 +312,7 @@ function filter() {
   const discountCheckbox = document.getElementById('discount-checkbox');
   const min = document.getElementById('min');
   const max = document.getElementById('max');
-  const activeLi = document.querySelector('.catalog li.active');
+  // const activeLi = document.querySelector('.catalog li.active');
 
   cards.forEach((card) => {
     const cardPrice = card.querySelector('.card-price');
@@ -358,6 +357,7 @@ function toggleCart() {
   btnCart.addEventListener('click', () => {
     modalCart.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    showCartCards();
   })
 
   btnCartClose.addEventListener('click', () => {
@@ -369,7 +369,88 @@ function toggleCart() {
 //end корзина
 
 //Добавление товара в корзины
+async function addCart(good) {
+  let goodClone = good;
 
+  let postCartCards = await fetch('http://localhost:3000/cart/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(goodClone)
+  })
+}
+
+async function cartCounter() {
+  const countGoods = document.querySelector('.counter');
+  let getCartCards = await fetch('http://localhost:3000/cart/');
+  let result = await getCartCards.json();
+
+  countGoods.textContent = result.length;
+}
+
+async function showCartCards() {
+  let getCartCards = await fetch('http://localhost:3000/cart/');
+  let cartCards = await getCartCards.json();
+
+  renderCartCards(cartCards);
+}
+
+function renderCartCards(cartCards) {
+  const cartWrapper = document.querySelector('.cart-wrapper');
+  const cartEmpty = document.getElementById('cart-empty');
+  const cartTotal = document.querySelector('.cart-total span');
+  let sum = 0;
+
+  cartCards.forEach(item => {
+    sum += item.price;
+  });
+
+  cartTotal.textContent = sum;
+
+
+  if (cartCards.length) {
+    cartEmpty ? cartEmpty.remove() : '';
+    cartCards.forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('data-category', item.category);
+      card.innerHTML = `
+        ${item.sale ? '<div class="card-sale">🔥Hot Sale🔥</div>' : ''}
+                          <div class="card-img-wrapper">
+                            <span class="card-img-top"
+                              style="background-image: url('${item.img}')"></span>
+                          </div>
+                          <div class="card-body justify-content-between">
+                            <div class="card-price" style="${item.sale ? 'color:red;' : ''}">${item.price} ₽</div>
+                            <h5 class="card-title">${item.title}</h5>
+                            <button class="btn">Удалить из корзины</button>
+                          </div>
+                        </div>
+      `;
+      cartWrapper.append(card);
+
+      const cardBtn = card.querySelector('.btn');
+      cardBtn.addEventListener('click', () => {
+        deleteCart(item);
+      });
+    });
+  } else {
+    cartWrapper.append(cartEmpty);
+  };
+}
+
+async function deleteCart(card) {
+  let response = await fetch(`http://localhost:3000/cart/${card.id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(card)
+  })
+  showCartCards();
+}
+/*Старая реализация
 function addCart() {
   const cards = document.querySelectorAll('.goods .card');
   const cartWrapper = document.querySelector('.cart-wrapper');
@@ -416,7 +497,7 @@ function addCart() {
     };
   };
 
-};
+};*/
 
 //end добавление товара в корзину
 
