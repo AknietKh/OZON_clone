@@ -6,7 +6,8 @@
 Просмотр по ссылке:
 Проект без json-server'a: https://codepen.io/Akniet/project/editor/Devvex
 
-Что бы запустить у себя необходимо установить json-server. После чего в консоли в директории проекта ввести команду: json-server --watch ./db/db.json
+Что бы запустить у себя необходимо установить json-server. 
+После чего в консоли в директории проекта ввести команду: json-server --watch ./db/db.json
 И открыть index.html в вашем браузере.
 
 Реализовано:
