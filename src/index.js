@@ -1,10 +1,8 @@
 //Нажатие на лого возвращает на начальную страницу
 {
   const logoBtn = document.querySelector('.logo'),
-        filterText = document.querySelector('.filter-title h5'),
-        discountCheckbox = document.getElementById('discount-checkbox');
-  
-  
+    filterText = document.querySelector('.filter-title h5'),
+    discountCheckbox = document.getElementById('discount-checkbox');
 
   logoBtn.addEventListener('click', (e) => {
     event.preventDefault();
@@ -20,7 +18,9 @@
   });
 }
 
-function pagination(data, whence='') {
+//Пагинация. Функция принимает массив с таварами (data), которые отображены на странице и 
+// откуда (whence) эти товары были запрошены (каталог, поиск)
+function pagination(data, whence = '') {
   const URL = 'http://localhost:3000/goods',
     pagination = document.querySelector('.pagination-wrapper'),
     paginationContent = pagination.querySelector('.pagination-content'),
@@ -40,17 +40,19 @@ function pagination(data, whence='') {
     }
 
     arrows.forEach((arrow) => {
-      arrow.addEventListener('click', (e) =>{
-        console.dir(e.target);
+      arrow.addEventListener('click', (e) => {
         const arrow = e.target.closest('.arrow')
-        arrowHandler(arrow, data);
+        arrowHandler(arrow);
       });
     });
+
     pagRequest(); //вызывается для того что бы отобразить первую страницу с заданными параметрами пагинации
   } else {
     pagination.style.display = 'none';
   }
 
+  //функция обработчик, которая вызывает функцию pagRequest с аргументом-номером страницы. 
+  // Т.е. отвечает за перелистывание страницы с товарами по стрелочкам
   function arrowHandler(arrow) {
     let activePagNum = +paginationContent.querySelector('.active').textContent;
 
@@ -71,6 +73,7 @@ function pagination(data, whence='') {
     }
   }
 
+  //функция отвечающая за получение карточек товара заданной страницы (из стрелочек или при клике на номер страницы в пагинации)
   async function pagRequest(event = '', arrow = '') {
     const pagNums = document.querySelectorAll('.pagination-number');
 
@@ -78,6 +81,7 @@ function pagination(data, whence='') {
     let pagCards = await response.json();
     renderCards(pagCards);
 
+    //Определение активной страницы и выделение активной страницы в пагинации
     if (!event && !pagination.style.display && !arrow) {
       const pagNum = document.querySelector('.pagination-number');
       pagNum.classList.add('active');
@@ -100,9 +104,9 @@ function pagination(data, whence='') {
     });
   }
 }
+//end Пагинация.
 
 //получение данных с сервера
-
 function getData(request = '') {
   const goodsWrapper = document.querySelector('.goods');
   return fetch(`http://localhost:3000/goods${request}`)
@@ -118,7 +122,9 @@ function getData(request = '') {
       goodsWrapper.innerHTML = '<div style="color: red; font-size: 30px; margin: 0 auto;">Упс, что-то пошло не так!</div>'
     });
 }
+//end получение данных с сервера
 
+//Отрисовка карточек. Функция принимает массив с товарами и рендерит на страницу
 function renderCards(data) {
   const goodsWrapper = document.querySelector('.goods');
   document.querySelectorAll('.card').forEach(i => i.remove());
@@ -146,15 +152,11 @@ function renderCards(data) {
       addCart(good);
     });
   });
-
 }
-
-//end получение данных с сервера
-
+//end Отрисовка карточек
 
 //Каталог
 async function renderCatalog() {
-  const cards = document.querySelectorAll('.goods .card');
   const catalogList = document.querySelector('.catalog-list');
   const catalogBtn = document.querySelector('.catalog-button');
   const catalogWrapper = document.querySelector('.catalog');
@@ -205,75 +207,63 @@ async function renderCatalog() {
 }
 //end Каталог
 
-//фильтр акций
-// функция actionPage вешает события на фильтр и чекбоксы. Так же реализован поиск по товарам
+//фильтр акций и цены
 function actionPage(data, whence = '') {
   const discountCheckbox = document.getElementById('discount-checkbox'),
-        min = document.getElementById('min'),
-        max = document.getElementById('max');
+    min = document.getElementById('min'),
+    max = document.getElementById('max'),
+    paginationWrapper = document.querySelector('.pagination-wrapper');
 
-  if(whence) {
-    discountCheckbox.removeEventListener('change', () => {
-      filter(data, whence);
-    });
-    min.removeEventListener('change', () => {
-      filter(data, whence);
-    });
-    max.removeEventListener('change', () => {
-      filter(data, whence);
-    });
+  discountCheckbox.addEventListener('change', filter);
+  min.addEventListener('change', filter);
+  max.addEventListener('change', filter);
+
+  function filter() {
+    if (min.value || max.value) {
+      let filterCards = [];
+
+      data.forEach((item) => {
+        if ((min.value ? (item.price > +min.value) : 1) && (max.value ? (item.price < +max.value) : 1)) {
+          filterCards.push(item);
+          paginationWrapper.style.display = 'none';
+        }
+      });
+
+      if (discountCheckbox.checked) {
+        let filterSaleCards = []
+        filterCards.forEach(item => {
+          if (item.sale) filterSaleCards.push(item);
+        })
+        filterCards = filterSaleCards;
+        paginationWrapper.style.display = 'none';
+      }
+
+      renderCards(filterCards);
+    }
+
+    else if (discountCheckbox.checked) {
+      let saleCards = [];
+      data.forEach(item => {
+        if (item.sale) saleCards.push(item);
+      });
+      renderCards(saleCards);
+      paginationWrapper.style.display = 'none';
+    } 
+    
+    else {
+      renderCards(data);
+      pagination(data, whence);
+    }
   }
-  
-  discountCheckbox.addEventListener('change', () => {
-    filter(data, whence);
-  });
-  min.addEventListener('change', () => {
-    filter(data, whence);
-  });
-  max.addEventListener('change', () => {
-    filter(data, whence);
-  });
-
 };
-
-function filter(data, whence) {
-  const discountCheckbox = document.getElementById('discount-checkbox');
-
-  if (discountCheckbox.checked){
-    let saleCards = [];
-    data.forEach( item => {
-      if (item.sale) saleCards.push(item);
-    });
-    renderCards(saleCards);
-    pagination(saleCards, 'sale=true');
-  } else {
-    renderCards(data);
-    pagination(data);
-    toggleCheckbox();
-  }
-  
-
-  // cards.forEach((card) => {
-  //   const cardPrice = card.querySelector('.card-price');
-  //   const price = parseFloat(cardPrice.textContent);
-  //   const discount = card.querySelector('.card-sale');
-
-  //   card.style.display = '';
-
-  //   if ((min.value && price < min.value) || (max.value && price > max.value)) {
-  //     card.style.display = 'none';
-  //   } else if (discountCheckbox.checked && !discount) {
-  //     card.style.display = 'none';
-  //   }
-  // });
-}
 //end фильтр акций
 
+//поиск
 function search() {
   const search = document.querySelector('.search-wrapper_input'),
-        searchBtn = document.querySelector('.search-btn'),
-        filterText = document.querySelector('.filter-title h5');
-  
+    searchBtn = document.querySelector('.search-btn'),
+    filterText = document.querySelector('.filter-title h5');
+
   searchBtn.addEventListener('click', searchHandler);
   search.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') searchHandler();
@@ -285,15 +275,15 @@ function search() {
       .then(data => {
         renderCards(data);
         pagination(data, `title_like=${searchText}`);
-        actionPage(data,`title_like=${searchText}`);
+        actionPage(data, `title_like=${searchText}`);
       });
     search.value = '';
     filterText.textContent = 'Фильтр';
   }
 }
+// end поиск
 
-// checkbox. функция отрисовки галочки в чекбоксе
-
+//checkbox. функция отрисовки галочки в чекбоксе
 function toggleCheckbox() {
   const checkbox = document.querySelectorAll('.filter-check_checkbox');
 
@@ -307,11 +297,9 @@ function toggleCheckbox() {
     });
   });
 };
-
 //end checkbox
 
 //корзина. функция показывает/скрывает окно корзины
-
 function toggleCart() {
   const btnCart = document.getElementById('cart'); //иконка корзины
   const modalCart = document.querySelector('.cart');
@@ -329,10 +317,10 @@ function toggleCart() {
     cartCounter();
   })
 }
-
 //end корзина
 
-//Добавление товара в корзины
+//Корзина. 
+//функция добавляет товар в корзину
 async function addCart(good) {
   let goodClone = good;
 
@@ -346,6 +334,7 @@ async function addCart(good) {
   cartCounter();
 }
 
+//показывает кол-во товаров в корзине
 async function cartCounter() {
   const countGoods = document.querySelector('.counter');
   let getCartCards = await fetch('http://localhost:3000/cart/');
@@ -354,6 +343,7 @@ async function cartCounter() {
   countGoods.textContent = result.length;
 }
 
+//запрашивает товары, находящиеся в корзине и вызывает функцию для отрисовки товаров в корзине
 async function showCartCards() {
   let getCartCards = await fetch('http://localhost:3000/cart/');
   let cartCards = await getCartCards.json();
@@ -361,6 +351,7 @@ async function showCartCards() {
   renderCartCards(cartCards);
 }
 
+//отрисовывает карточки товаров в модальном окнце корзины
 function renderCartCards(cartCards) {
   const cartWrapper = document.querySelector('.cart-wrapper');
   const cartEmpty = document.getElementById('cart-empty');
@@ -375,7 +366,6 @@ function renderCartCards(cartCards) {
   cartWrapper.innerHTML = '';
 
   if (cartCards.length) {
-    // cartEmpty ? cartEmpty.display = 'none' : '';
     cartCards.forEach((item) => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -419,7 +409,7 @@ async function deleteCart(card) {
   showCartCards();
 }
 
-//end добавление товара в корзину
+//end Корзина.
 
 getData().then((data) => {
   renderCards(data);
