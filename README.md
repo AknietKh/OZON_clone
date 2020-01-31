@@ -16,17 +16,17 @@
 
 ## Доступные команды (scripts)
 Установить необходимые зависимости, если у вас их нет:
-`npm install`
+`npm install`<br/>
 Запустить json-server:
-`npm run json-server`
+`npm run json-server`<br/>
 Запуск проекта с помощью webpack-dev-server:
-`npm start`
+`npm start`<br/>
 developer сборка:
-`npm run dev`
+`npm run dev`<br/>
 production сборка: 
-`npm run build`
+`npm run build`<br/>
 Скомпилировать sass в css: 
-`npm run sass`
+`npm run sass`<br/>
 
 ## Запуск:
     npm install
