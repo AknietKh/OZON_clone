@@ -3,7 +3,7 @@
 Клон магазина Ozon. Переделанная версия [этого проекта](https://github.com/AknietKh/OZON). <br/>
 В данном проекте используется [JSON server](https://github.com/typicode/json-server) (Fake REST API) для имитации запросов на сервер.
 
-### Просмотр по ссылке:
+Просмотр по ссылке:<br/>
 Проект без json-server'a: https://aknietkh.github.io/OZON/
 
 Реализовано:<br/>
