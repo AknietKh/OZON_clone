@@ -96,7 +96,4 @@ function pagination(data, whence = '') {
   }
 }
 
-
-
-
 export {pagination};
