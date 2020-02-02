@@ -53,7 +53,7 @@ function activeCategory() {
         .then(data => {
           renderCards(data);
           pagination(data, `category_like=${event.target.textContent}`);
-          actionPage(data, `category_like=${event.target.textContent}`);
+          actionPage(data);
         });
     }
   });

@@ -2,7 +2,7 @@ import {renderCards} from './renderCards';
 import {pagination} from './pagination';
 
 //фильтр акций и цены
-function actionPage(data, whence = '') {
+function actionPage(data) {
   const discountCheckbox = document.getElementById('discount-checkbox'),
         min = document.getElementById('min'),
         max = document.getElementById('max');
@@ -21,7 +21,7 @@ function actionPage(data, whence = '') {
       let filterCards = [];
   
       data.forEach((item) => {
-        if ((min.value ? (item.price > +min.value) : 1) && (max.value ? (item.price < +max.value) : 1)) {
+        if ((!min.value || item.price > +min.value) && (!max.value || item.price < +max.value)) {
           filterCards.push(item);
           paginationWrapper.style.display = 'none';
         }
@@ -52,7 +52,7 @@ function actionPage(data, whence = '') {
       paginationWrapper.style.display = 'none';
     } else {
       renderCards(data);
-      pagination(data, whence);
+      pagination(data);
     }
   }
 };
